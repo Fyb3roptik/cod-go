@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"log"
 )
 
 const (
@@ -189,6 +190,7 @@ func (c Session) GetIdentities() (*Identity, error) {
 	identities := &Identity{}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	bodyString := strings.TrimSuffix(strings.Replace(string(bodyBytes), "userInfo(", "", 1), ")")
+	log.Println("DEBUG: JSON ", bodyString)
 	err = json.Unmarshal([]byte(bodyString), identities)
 	if err != nil {
 		return nil, err
