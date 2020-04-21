@@ -2,6 +2,7 @@ package cod
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,7 +10,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-  "errors"
 )
 
 const (
