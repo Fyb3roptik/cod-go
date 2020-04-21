@@ -107,13 +107,13 @@ func Login(username string, password string) (*Session, error) {
 		if cookie.Name == "XSRF-TOKEN" {
 			session.Xsrf = cookie.Value
 		}
-		cookie := &http.Cookie{
-			Name:   cookie.Name,
-			Value:  cookie.Value,
-			Path:   "/",
-			Domain: ".callofduty.com",
-		}
-		cookies = append(cookies, cookie)
+		// cookie := &http.Cookie{
+		// 	Name:   cookie.Name,
+		// 	Value:  cookie.Value,
+		// 	Path:   "/",
+		// 	Domain: ".callofduty.com",
+		// }
+		// cookies = append(cookies, cookie)
 	}
 
 	u, _ := url.Parse("https://callofduty.com/")
