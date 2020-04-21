@@ -174,7 +174,8 @@ func (c Session) GetIdentities() (*Identity, error) {
 	}
 	cookie_string_slice := []string{}
 	for _, cookie := range c.Cookies {
-		cookie_string_slice = append(cookie_string_slice, cookie.String())
+		cookie_string := fmt.Sprintf("%s=%s", cookie.Name, cookie.Value)
+		cookie_string_slice = append(cookie_string_slice, cookie_string)
 	}
 	cookie_string := strings.Join(cookie_string_slice, ";")
 log.Println("DEBUG: COOKIES ", c.Cookies)
