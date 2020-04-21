@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"log"
 )
 
 const (
@@ -146,7 +147,7 @@ func Login(username string, password string) (*Session, error) {
 	}
 	defer resp.Body.Close()
 	location, _ := resp.Location()
-	log.Println("DEBUG: ", resp.Location())
+	log.Println("DEBUG: ", location)
 	if strings.Contains(location.String(), "failure") {
 		errors.New("Invalid Login")
 		return nil, err
