@@ -15,7 +15,7 @@ import (
 const (
 	CSRF_URL  = "https://profile.callofduty.com/cod/login"
 	LOGIN_URL = "https://profile.callofduty.com/do_login?new_SiteId=cod"
-	USER_URL  = "https://my.callofduty.com/api/papi-client/crm/cod/v2/identities"
+	USER_URL  = "https://profile.callofduty.com/cod/userInfo"
 	STATS_URL = "https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform"
 )
 
@@ -27,16 +27,12 @@ type Session struct {
 	ActSsoCookie string
 	Cookies      []*http.Cookie
 }
-type RawUserResponse struct {
-	Data *TitleIdentity `json:"data"`
-}
-type TitleIdentity struct {
-	TitleIdentity []UserData `json:"titleIdentities"`
+type Identity struct {
+	Identities []UserData `json:"identities"`
 }
 type UserData struct {
 	Username string `json:"username"`
-	Platform string `json:"platform"`
-	Title    string `json:"title"`
+	Provider string `json:"provider"`
 }
 
 // Player Data Structs
@@ -166,7 +162,7 @@ func Login(username string, password string) (*Session, error) {
 }
 
 // Title options: mw, bo4, wwii
-func (c Session) GetIdentities(title string) (*TitleIdentity, error) {
+func (c Session) GetIdentities() (*Identity, error) {
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse("https://callofduty.com/")
 	jar.SetCookies(u, c.Cookies)
@@ -190,20 +186,20 @@ func (c Session) GetIdentities(title string) (*TitleIdentity, error) {
 	}
 	defer resp.Body.Close()
 
-	raw_resp := &RawUserResponse{}
+	identities := &Identity{}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(bodyBytes, raw_resp)
+	bodyString := strings.TrimSuffix(strings.Replace(string(bodyBytes), "userInfo(", "", 1), ")")
+	err = json.Unmarshal([]byte(bodyString), identities)
 	if err != nil {
 		return nil, err
 	}
 
-	identities := &TitleIdentity{}
-	if len(raw_resp.Data.TitleIdentity) == 0 {
+	if len(identities.Identities) == 0 {
 		return nil, errors.New("No Linked Accounts Found")
 	}
-	for _, identity := range raw_resp.Data.TitleIdentity {
-		if identity.Title == title {
-			identities.TitleIdentity = append(identities.TitleIdentity, identity)
+	for _, identity := range identities.Identities {
+		if identity.Provider == "battle" || identity.Provider == "xbl" || identity.Provider == "psn" {
+			identities.Identities = append(identities.Identities, identity)
 		}
 	}
 
