@@ -111,7 +111,7 @@ func Login(username string, password string) (*Session, error) {
 			Name:   cookie.Name,
 			Value:  cookie.Value,
 			Path:   "/",
-			Domain: "callofduty.com",
+			Domain: ".callofduty.com",
 		}
 		cookies = append(cookies, cookie)
 	}
@@ -165,8 +165,20 @@ func Login(username string, password string) (*Session, error) {
 // Title options: mw, bo4, wwii
 func (c Session) GetIdentities() (*Identity, error) {
 	jar, _ := cookiejar.New(nil)
+
+	// CSRF FIRST
+	resp, err := http.Get(CSRF_URL)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == "XSRF-TOKEN" {
+			c.Xsrf = cookie.Value
+		}
+	}
+
 	u, _ := url.Parse("https://callofduty.com/")
-	jar.SetCookies(u, c.Cookies)
 	timeout := time.Duration(10 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
@@ -174,18 +186,22 @@ func (c Session) GetIdentities() (*Identity, error) {
 	}
 	cookie_string_slice := []string{}
 	for _, cookie := range c.Cookies {
+		if cookie.Name == "XSRF-TOKEN" {
+			cookie.Value = c.Xsrf
+		}
 		log.Println("DEBUG: COOKIE NAME ", cookie.Name)
 		log.Println("DEBUG: COOKIE VALUE ", cookie.Value)
 		cookie_string := fmt.Sprintf("%s=%s", cookie.Name, cookie.Value)
 		cookie_string_slice = append(cookie_string_slice, cookie_string)
 	}
+	jar.SetCookies(u, c.Cookies)
 	cookie_string := strings.Join(cookie_string_slice, ";")
 	user_url := fmt.Sprintf("%s/%s", USER_URL, c.ActSsoCookie)
 	log.Println("DEBUG: URL ", user_url)
 	req, err := http.NewRequest("GET", user_url, nil)
 	req.Header.Set("Cookie", cookie_string)
 	req.Header.Set("X-XSRF-TOKEN", c.Xsrf)
-	resp, err := client.Do(req)
+	resp, err = client.Do(req)
 	if err != nil {
 		return nil, err
 	}
