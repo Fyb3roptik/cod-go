@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	"log"
 )
 
 const (
@@ -106,13 +105,6 @@ func Login(username string, password string) (*Session, error) {
 		if cookie.Name == "XSRF-TOKEN" {
 			session.Xsrf = cookie.Value
 		}
-		// cookie := &http.Cookie{
-		// 	Name:   cookie.Name,
-		// 	Value:  cookie.Value,
-		// 	Path:   "/",
-		// 	Domain: ".callofduty.com",
-		// }
-		// cookies = append(cookies, cookie)
 	}
 
 	u, _ := url.Parse("https://callofduty.com/")
@@ -153,11 +145,9 @@ func Login(username string, password string) (*Session, error) {
 		if cookie.Name == "rtkn" {
 			session.Rtkn = cookie.Value
 		}
-		if cookie.Name == "ACT_SSO_COOKIE" {
+		if cookie.Name == "ACT_SSO_COOKIE" && session.ActSsoCookie == "" {
 			session.ActSsoCookie = cookie.Value
 		}
-		log.Println("DEBUG: COOKIE NAME ", cookie.Name)
-		log.Println("DEBUG: COOKIE VALUE ", cookie.Value)
 	}
 	session.Cookies = resp.Cookies()
 	return session, nil
@@ -178,21 +168,19 @@ func (c Session) GetIdentities() (*Identity, error) {
 		if cookie.Name == "XSRF-TOKEN" {
 			cookie.Value = c.Xsrf
 		}
-		if cookie.Name == "ACT_SSO_COOKIE" {
+		if cookie.Name == "ACT_SSO_COOKIE" && c.ActSsoCookie == "" {
 			c.ActSsoCookie = cookie.Value
+		} else {
+			cookie_string := fmt.Sprintf("%s=%s", cookie.Name, cookie.Value)
+			cookie_string_slice = append(cookie_string_slice, cookie_string)
 		}
-		// log.Println("DEBUG: COOKIE NAME ", cookie.Name)
-		// log.Println("DEBUG: COOKIE VALUE ", cookie.Value)
-		cookie_string := fmt.Sprintf("%s=%s", cookie.Name, cookie.Value)
-		cookie_string_slice = append(cookie_string_slice, cookie_string)
 	}
 	jar.SetCookies(u, c.Cookies)
 	cookie_string := strings.Join(cookie_string_slice, ";")
 	user_url := fmt.Sprintf("%s/%s", USER_URL, c.ActSsoCookie)
-	log.Println("DEBUG: URL ", user_url)
 	req, err := http.NewRequest("GET", user_url, nil)
-	req.Header.Set("Cookie", cookie_string)
 	req.Header.Set("X-XSRF-TOKEN", c.Xsrf)
+	req.Header.Set("Cookie", cookie_string)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
