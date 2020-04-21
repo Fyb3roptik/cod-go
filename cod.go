@@ -189,6 +189,9 @@ func (c Session) GetIdentities() (*Identity, error) {
 		if cookie.Name == "XSRF-TOKEN" {
 			cookie.Value = c.Xsrf
 		}
+		if cookie.Name == "ACT_SSO_COOKIE" {
+			c.ActSsoCookie = cookie.Value
+		}
 		log.Println("DEBUG: COOKIE NAME ", cookie.Name)
 		log.Println("DEBUG: COOKIE VALUE ", cookie.Value)
 		cookie_string := fmt.Sprintf("%s=%s", cookie.Name, cookie.Value)
