@@ -101,7 +101,6 @@ func Login(username string, password string) (*Session, error) {
 	}
 
 	session := &Session{}
-	cookies := []*http.Cookie{}
 
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "XSRF-TOKEN" {
@@ -117,7 +116,7 @@ func Login(username string, password string) (*Session, error) {
 	}
 
 	u, _ := url.Parse("https://callofduty.com/")
-	jar.SetCookies(u, cookies)
+	jar.SetCookies(u, resp.Cookies())
 	timeout := time.Duration(10 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
