@@ -198,6 +198,9 @@ func (c Session) GetIdentities(title string) (*TitleIdentity, error) {
 	}
 
 	identities := &TitleIdentity{}
+	if len(raw_resp.Data.TitleIdentity) == 0 {
+		return nil, errors.New("No Linked Accounts Found")
+	}
 	for _, identity := range raw_resp.Data.TitleIdentity {
 		if identity.Title == title {
 			identities.TitleIdentity = append(identities.TitleIdentity, identity)
