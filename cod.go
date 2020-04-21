@@ -177,7 +177,7 @@ func (c Session) GetIdentities() (*Identity, error) {
 		cookie_string_slice = append(cookie_string_slice, cookie.String())
 	}
 	cookie_string := strings.Join(cookie_string_slice, ";")
-
+log.Println("DEBUG: COOKIES ", c.Cookies)
 	user_url := fmt.Sprintf("%s/%s", USER_URL, c.ActSsoCookie)
 	log.Println("DEBUG: URL ", user_url)
 	req, err := http.NewRequest("GET", user_url, nil)
@@ -192,7 +192,6 @@ func (c Session) GetIdentities() (*Identity, error) {
 	identities := &Identity{}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	bodyString := strings.TrimSuffix(strings.Replace(string(bodyBytes), "userInfo(", "", 1), ");")
-	log.Println("DEBUG: JSON ", bodyString)
 	err = json.Unmarshal([]byte(bodyString), identities)
 	if err != nil {
 		return nil, err
