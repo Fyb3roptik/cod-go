@@ -198,11 +198,13 @@ func (c Session) GetIdentities() (*Identity, error) {
 	if len(identities.Identities) == 0 {
 		return nil, errors.New("No Linked Accounts Found")
 	}
+	identities_final := []UserData{}
 	for _, identity := range identities.Identities {
 		if identity.Provider == "battle" || identity.Provider == "xbl" || identity.Provider == "psn" {
-			identities.Identities = append(identities.Identities, identity)
+			identities_final = append(identities_final, identity)
 		}
 	}
+	identities.Identities = identities_final
 
 	return identities, nil
 }
