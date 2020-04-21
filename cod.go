@@ -182,6 +182,7 @@ func (c Session) GetIdentities() (*Identity, error) {
 	log.Println("DEBUG: URL ", user_url)
 	req, err := http.NewRequest("GET", user_url, nil)
 	req.Header.Set("Cookie", cookie_string)
+	req.Header.Set("X-XSRF-TOKEN", c.Xsrf)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
