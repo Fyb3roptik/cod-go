@@ -174,11 +174,12 @@ func (c Session) GetIdentities() (*Identity, error) {
 	}
 	cookie_string_slice := []string{}
 	for _, cookie := range c.Cookies {
+		log.Println("DEBUG: COOKIE NAME ", cookie.Name)
+		log.Println("DEBUG: COOKIE VALUE ", cookie.Value)
 		cookie_string := fmt.Sprintf("%s=%s", cookie.Name, cookie.Value)
 		cookie_string_slice = append(cookie_string_slice, cookie_string)
 	}
 	cookie_string := strings.Join(cookie_string_slice, ";")
-log.Println("DEBUG: COOKIES ", cookie_string)
 	user_url := fmt.Sprintf("%s/%s", USER_URL, c.ActSsoCookie)
 	log.Println("DEBUG: URL ", user_url)
 	req, err := http.NewRequest("GET", user_url, nil)
