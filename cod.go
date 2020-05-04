@@ -28,7 +28,7 @@ type Session struct {
 	Cookies      []*http.Cookie
 }
 type Identity struct {
-	Identities []UserData `json:"identities"`
+	Identities []*UserData `json:"identities"`
 }
 type UserData struct {
 	Username string `json:"username"`
@@ -195,10 +195,10 @@ func (c Session) GetIdentities() (*Identity, error) {
 		return nil, err
 	}
 
-	if len(identities.Identities) == 0 {
+	if identities.Identities == nil {
 		return nil, errors.New("No Linked Accounts Found")
 	}
-	identities_final := []UserData{}
+	identities_final := []*UserData{}
 	for _, identity := range identities.Identities {
 		if identity.Provider == "battle" || identity.Provider == "xbl" || identity.Provider == "psn" {
 			identities_final = append(identities_final, identity)
