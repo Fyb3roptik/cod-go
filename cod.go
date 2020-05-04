@@ -195,14 +195,16 @@ func (c Session) GetIdentities() (*Identity, error) {
 		return nil, err
 	}
 
-	if identities.Identities == nil {
-		return nil, errors.New("No Linked Accounts Found")
-	}
 	identities_final := []*UserData{}
+	has_identity := false
 	for _, identity := range identities.Identities {
 		if identity.Provider == "battle" || identity.Provider == "xbl" || identity.Provider == "psn" {
+			has_identity = true
 			identities_final = append(identities_final, identity)
 		}
+	}
+	if has_identity == false {
+		return nil, errors.New("No Linked Accounts Found. Please link your account at callofduty.com")
 	}
 	identities.Identities = identities_final
 
