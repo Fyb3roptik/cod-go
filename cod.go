@@ -130,13 +130,12 @@ func Login(username string, password string) (*Session, error) {
 
 	resp, err = client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Invalid Login Credentials. Please use your callofduty.com account to login.")
 	}
 	defer resp.Body.Close()
 	location, _ := resp.Location()
 	if strings.Contains(location.String(), "failure") {
-		errors.New("Invalid Login")
-		return nil, err
+		return nil, errors.New("Invalid Login Credentials. Please use your callofduty.com account to login.")
 	}
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "atkn" {
