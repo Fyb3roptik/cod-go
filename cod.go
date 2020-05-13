@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"log"
 )
 
 const (
@@ -37,10 +38,12 @@ type UserData struct {
 
 // Player Data Structs
 type RawRecentMatchesResponse struct {
+	Status	string	`json:"status"`
 	Data *MatchData `json:"data"`
 }
 type MatchData struct {
 	Matches []Match `json:"matches"`
+	Message	string	`json:"message"`
 }
 type Match struct {
 	UtcStartSeconds int          `json:"utcStartSeconds"`
@@ -215,7 +218,7 @@ func (c Session) GetPlayerStats(platform string, username string) ([]Match, erro
 	jar, _ := cookiejar.New(nil)
 	u, _ := url.Parse("https://callofduty.com/")
 	jar.SetCookies(u, c.Cookies)
-	timeout := time.Duration(10 * time.Second)
+	timeout := time.Duration(30 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
 		Jar:     jar,
@@ -227,6 +230,7 @@ func (c Session) GetPlayerStats(platform string, username string) ([]Match, erro
 	cookie_string := strings.Join(cookie_string_slice, ";")
 
 	stats_url := fmt.Sprintf("%s/%s/gamer/%s/matches/wz/start/0/end/0/details?", STATS_URL, platform, url.QueryEscape(username))
+	log.Println("DEBUG: URL ", stats_url)
 	req, err := http.NewRequest("GET", stats_url, nil)
 	req.Header.Set("Cookie", cookie_string)
 	resp, err := client.Do(req)
@@ -236,10 +240,12 @@ func (c Session) GetPlayerStats(platform string, username string) ([]Match, erro
 	defer resp.Body.Close()
 
 	raw_resp := &RawRecentMatchesResponse{}
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(bodyBytes, raw_resp)
+	err = json.NewDecoder(resp.Body).Decode(raw_resp)
 	if err != nil {
 		return nil, err
+	}
+	if raw_resp.Status == "error" {
+		return nil, errors.New(raw_resp.Data.Message)
 	}
 	return raw_resp.Data.Matches, nil
 }
