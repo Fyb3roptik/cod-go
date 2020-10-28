@@ -1,6 +1,6 @@
 # COD-GO
 
-`This library was built to support Warzone. It may or may not currently support regular cod. Feel free to do a PR!`
+`This library was built to support Warzone. Feel free to do a PR!`
 
 ## Installation
 ```
