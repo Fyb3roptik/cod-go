@@ -1,5 +1,7 @@
 # COD-GO
 
+`LIBRARY NO LONGER MAINTAINED`
+
 `This library was built to support Warzone. Feel free to do a PR!`
 
 ## Installation
